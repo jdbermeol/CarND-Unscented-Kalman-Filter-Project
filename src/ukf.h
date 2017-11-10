@@ -9,8 +9,20 @@
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
+using namespace std;
 
 class UKF {
+private:
+  double FixAngle(double a);
+  MatrixXd GenerateSigmaPoints();
+  MatrixXd PredictSigmaPoints(const MatrixXd &Xsig_aug, double delta_t);
+  pair<VectorXd, MatrixXd> MeanAndCovarianze(const MatrixXd &X);
+  MatrixXd MeasurePredictedSigmaPointsRadar();
+  pair<VectorXd, MatrixXd> MeanAndCovarianzeRadar(const MatrixXd &X);
+  MatrixXd ComputeCrossCovarianzeRadar(const MatrixXd &Z, const VectorXd &z);
+  MatrixXd MeasurePredictedSigmaPointsLidar();
+  pair<VectorXd, MatrixXd> MeanAndCovarianzeLidar(const MatrixXd &X);
+  MatrixXd ComputeCrossCovarianzeLidar(const MatrixXd &Z, const VectorXd &z);
 public:
 
   ///* initially set to false, set to true in first call of ProcessMeasurement
@@ -67,6 +79,14 @@ public:
   ///* Sigma point spreading parameter
   double lambda_;
 
+  ///* Measurement covarianze matrix radar
+  MatrixXd R_readar_;
+
+  ///* Measurement covarianze matrix radar
+  MatrixXd R_lidar_;
+
+  ///* Porcess noise covarianze matrix
+  MatrixXd Q_;
 
   /**
    * Constructor
@@ -82,7 +102,7 @@ public:
    * ProcessMeasurement
    * @param meas_package The latest measurement data of either radar or laser
    */
-  void ProcessMeasurement(MeasurementPackage meas_package);
+  double ProcessMeasurement(const MeasurementPackage &meas_package);
 
   /**
    * Prediction Predicts sigma points, the state, and the state covariance
@@ -94,14 +114,16 @@ public:
   /**
    * Updates the state and the state covariance matrix using a laser measurement
    * @param meas_package The measurement at k+1
+   * @return nis
    */
-  void UpdateLidar(MeasurementPackage meas_package);
+  double UpdateLidar(MeasurementPackage meas_package);
 
   /**
    * Updates the state and the state covariance matrix using a radar measurement
    * @param meas_package The measurement at k+1
+   * @return nis
    */
-  void UpdateRadar(MeasurementPackage meas_package);
+  double UpdateRadar(MeasurementPackage meas_package);
 };
 
 #endif /* UKF_H */
