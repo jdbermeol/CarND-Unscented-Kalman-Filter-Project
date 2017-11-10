@@ -13,16 +13,18 @@ using namespace std;
 
 class UKF {
 private:
-  double FixAngle(double a);
+  MatrixXd X_diff_;
+
+  double NormAng(double a);
   MatrixXd GenerateSigmaPoints();
   MatrixXd PredictSigmaPoints(const MatrixXd &Xsig_aug, double delta_t);
-  pair<VectorXd, MatrixXd> MeanAndCovarianze(const MatrixXd &X);
+  VectorXd Mean(const MatrixXd &X);
+  MatrixXd Varianze(const MatrixXd &A, const MatrixXd &B);
+  double UpdateUKF(const MeasurementPackage &meas_package, MatrixXd (UKF::*measure)(), VectorXd (UKF::*fix_vector)(const VectorXd&), const MatrixXd &R);
   MatrixXd MeasurePredictedSigmaPointsRadar();
-  pair<VectorXd, MatrixXd> MeanAndCovarianzeRadar(const MatrixXd &X);
-  MatrixXd ComputeCrossCovarianzeRadar(const MatrixXd &Z, const VectorXd &z);
+  VectorXd FixRadarVector(const VectorXd &z); 
   MatrixXd MeasurePredictedSigmaPointsLidar();
-  pair<VectorXd, MatrixXd> MeanAndCovarianzeLidar(const MatrixXd &X);
-  MatrixXd ComputeCrossCovarianzeLidar(const MatrixXd &Z, const VectorXd &z);
+  VectorXd FixLidarVector(const VectorXd &z);
 public:
 
   ///* initially set to false, set to true in first call of ProcessMeasurement
@@ -116,14 +118,14 @@ public:
    * @param meas_package The measurement at k+1
    * @return nis
    */
-  double UpdateLidar(MeasurementPackage meas_package);
+  double UpdateLidar(const MeasurementPackage &meas_package);
 
   /**
    * Updates the state and the state covariance matrix using a radar measurement
    * @param meas_package The measurement at k+1
    * @return nis
    */
-  double UpdateRadar(MeasurementPackage meas_package);
+  double UpdateRadar(const MeasurementPackage &meas_package);
 };
 
 #endif /* UKF_H */
